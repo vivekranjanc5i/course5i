@@ -1,0 +1,56 @@
+schema: '2.0'
+stages:
+  load_data:
+    cmd: python src/load_data.py --config=params.yaml
+    deps:
+    - path: source_code/insurance_course5i.csv
+      md5: e5e8449fddfe0d093eeb5f8f76dcbb98
+      size: 43388
+    - path: src/get_data.py
+      md5: 14265bff66aa6e713223a479b1869926
+      size: 679
+    - path: src/load_data.py
+      md5: e07a2c1a7157721ba8708ec83676389c
+      size: 679
+    outs:
+    - path: data/raw/insurance_course5i.csv
+      md5: e5e8449fddfe0d093eeb5f8f76dcbb98
+      size: 43388
+  split_data:
+    cmd: python src/split_data.py --config=params.yaml
+    deps:
+    - path: data/raw/insurance_course5i.csv
+      md5: e5e8449fddfe0d093eeb5f8f76dcbb98
+      size: 43388
+    - path: src/split_data.py
+      md5: cd77b11c1f69a2ae2ce5f1d231ec5287
+      size: 1057
+    outs:
+    - path: data/processed/test_insurance_course5i.csv
+      md5: c7602755f3bf7ec549910b0a8c8aca42
+      size: 8701
+    - path: data/processed/train_insurance_course5i.csv
+      md5: f2336ca0522516814bf10b79c8094f07
+      size: 34731
+  log_production_model:
+    cmd: python src/log_production_model.py --config=params.yaml
+    deps:
+    - path: src/log_production_model.py
+      md5: d692b2eab5fade91d52f2ad38fddf3ea
+      size: 1674
+  train_and_evaluate:
+    cmd: python src/train_and_evaluate.py --config=params.yaml
+    deps:
+    - path: data/processed/test_insurance_course5i.csv
+      md5: c7602755f3bf7ec549910b0a8c8aca42
+      size: 8701
+    - path: data/processed/train_insurance_course5i.csv
+      md5: f2336ca0522516814bf10b79c8094f07
+      size: 34731
+    - path: src/train_and_evaluate.py
+      md5: c0f8036dd37f7e8baba7dd70c08fa2b1
+      size: 3515
+    params:
+      params.yaml:
+        estimators.ElasticNet.params.alpha: 0.7
+        estimators.ElasticNet.params.l1_ratio: 0.8
